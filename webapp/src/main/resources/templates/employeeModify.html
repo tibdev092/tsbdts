@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register New Employee</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css"/>
+    <script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<body>
+<form th:object="${employee}" th:action="@{/emp/modify}" method="post" enctype="multipart/form-data">
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading" style="background-color:lightgray;">
+                <h1 class="panel-title">Employee Data</h1>
+            </div>
+            <input type="text" class="form-control" th:hidden="true" th:field="*{id}"/>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3 form-group">
+                        <label>First name:</label>
+                        <label th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">Error</label>
+                        <input type="text" class="form-control" th:field="*{firstName}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label>Last Name:</label>
+                        <input type="text" class="form-control" th:field="*{lastName}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email</label>
+                        <label>Email:</label>
+                        <input type="text" class="form-control" th:field="*{email}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label>Phone:</label>
+                        <input type="text" class="form-control" th:field="*{phone}"/>
+                    </div>
+
+                    <div class="col-md-3 form-group">
+                        <label>Department:</label>
+                        <select id="department" name="department" th:field="*{department}">
+                            <option
+                                    th:each="dept: ${departments}"
+                                    th:value="${dept.departmentName}" th:text="${dept.departmentName}">
+                            </option>
+                        </select>
+                    </div>
+
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label for="job">Job: </label>
+                        <select id="job" name="job" th:field="*{job}">
+                            <option
+                                    th:each="job: ${jobs}"
+                                    th:value="${job}" th:text="${job}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label th:for="reservePrice">Salary:</label>
+                        <input type="number" class="form-control" th:field="*{salary}"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-7 ml-md-auto">
+                        <button type="submit" class="btn btn-primary">Update Employee</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</form>
+</body>
+</html>

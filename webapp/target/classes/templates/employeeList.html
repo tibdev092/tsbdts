@@ -1,0 +1,100 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Employees List</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css"/>
+<body>
+<script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+Logged user: <span sec:authentication="name">user</span> Roles: <span sec:authentication="principal.authorities">[ROLE_USER]</span>
+<div class="container">
+    <table class="table table-hover">
+        <thead class="thead-inverse">
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Salary</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Department</th>
+            <th>Job</th>
+            <th>History</th>
+            <th sec:authorize="hasRole('ADMIN')">Modify</th>
+        </tr>
+        </thead>
+        <tr th:each="employee, stat : ${employees.content}"
+            th:class="${stat.odd}? 'table-light':'table-dark'"
+        >
+            <td th:text="${employee.firstName}"></td>
+            <td th:text="${employee.lastName}"></td>
+            <td th:text="${employee.salary}"></td>
+            <td th:text="${employee.email}"></td>
+            <td th:text="${employee.phone}"></td>
+            <td th:text="${employee.department}"></td>
+            <td th:text="${employee.job}"></td>
+            <td><a href="#" th:href="@{'/emp/history/' + ${employee.id}}">History</a></td>
+            <td><a href="#" sec:authorize="hasRole('ADMIN')" th:href="@{'/emp/modificationForm/' + ${employee.id}}">Modify</a></td>
+        </tr>
+    </table>
+    <div class="row">
+        <div th:if="${employees.totalPages > 0}" class="pagination"
+             th:each="pageNumber : ${#numbers.sequence(1,T(java.lang.Math).min(7,employees.totalPages))}">
+            <a th:href="@{/emp/list(size=${employees.size}, page=${pageNumber})}"
+               th:text=${pageNumber}
+               th:class="${pageNumber==employees.number + 1} ? active"></a>
+
+        </div>
+        <div th:if="${employees.totalPages > 0}" class="pagination">
+            <span th:if="${employees.number > 6}"> ... </span>
+            <a th:if="${employees.number > 6}"
+               th:text="${employees.number + 1}"
+               th:class="active"></a>
+
+        </div>
+        <div th:if="${employees.totalPages > 0}" class="pagination" >
+            <a th:if="${employees.number < employees.totalPages}"
+               th:href="@{/emp/list(size=${employees.size}, page=${employees.number+2})}">Next</a>
+            <span th:unless="${employees.number < employees.totalPages}">Next</span>
+        </div>
+    </div>
+
+</div>
+<div class="container" sec:authorize="hasRole('ADMIN')">
+    <div class="row">
+        <div class="col-md-6">
+            <a class="btn btn-primary" role="button" th:href="@{'/emp/registerForm'}">Register Employee</a>
+        </div>
+    </div>
+</div>
+
+<div class="container" sec:authorize="hasRole('ADMIN')">
+    <div class="row">
+        <div class="col-md-6">
+            <a class="btn btn-primary" role="button" th:href="@{'/job/registerForm'}">Register Job</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <a class="btn btn-primary" role="button" th:href="@{'/job/list'}">See Jobs</a>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <a class="btn btn-primary" role="button" th:href="@{'/department/list'}">See Departments</a>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <form th:action="@{/logout}" method="POST">
+        <input type="submit" class="btn btn-primary" value="Logout">
+    </form>
+</div>
+</body>
+</html>

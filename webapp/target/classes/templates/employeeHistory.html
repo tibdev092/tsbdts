@@ -1,0 +1,28 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee History</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css"/>
+<body>
+<script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<div class="container">
+    <table class="table table-hover">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Job</th>
+            <th>Salary</th>
+            <th>Started</th>
+            <th>Ended</th>
+        </tr>
+        </thead>
+        <tr th:each="entry, stat : ${employmentHistory}"
+            th:class="${stat.odd}? 'table-light':'table-dark'">
+            <td th:text="${entry.job}"></td>
+            <td th:text="${entry.salary}"></td>
+            <td th:text="${entry.startJob}"></td>
+            <td th:text="${entry.endJob}"></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
