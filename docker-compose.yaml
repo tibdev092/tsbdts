@@ -1,0 +1,203 @@
+version: '3.8'
+
+networks:  
+  inner-network:  
+    name: inner-network  
+    driver: bridge
+    
+services:
+  job-database:
+    container_name: job-database
+    image: mysql:5.7
+    networks:
+      - inner-network
+    ports:
+      - '3316:3316'
+    expose:
+      - '3316'
+    environment:
+      MYSQL_DATABASE: 'job_db'
+      MYSQL_USER: 'job_user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_TCP_PORT: 3316
+      
+  dept-database:
+    container_name: dept-database
+    image: mysql:5.7
+    networks:
+      - inner-network
+    ports:
+      - '3317:3317'
+    expose:
+      - '3317' 
+    environment:
+      MYSQL_DATABASE: 'dept_db'
+      MYSQL_USER: 'dept_user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_TCP_PORT: 3317
+      
+  emp-database:
+    container_name: emp-database
+    image: mysql:5.7
+    networks:
+      - inner-network
+    ports:
+      - '3318:3318'
+    expose:
+      - '3318'      
+    environment:
+      MYSQL_DATABASE: 'emp_db'
+      MYSQL_USER: 'emp_user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_TCP_PORT: 3318
+      
+  naming-server:
+    container_name: naming-server
+    image: naming-server:0.0.1-SNAPSHOT
+    ports:
+      - '8071:8071'
+    networks:
+      - inner-network
+    environment:
+      server.port: 8071
+      eureka.instance.hostname: naming-server
+      eureka.client.serviceUrl.defaultZone: http://naming-server:8071/eureka
+      
+  cloud-config:
+    container_name: cloud-config
+    image: cloud-config:0.0.1-SNAPSHOT
+    ports:
+      - '8070:8070'
+    networks:
+      - inner-network
+    depends_on:
+     - naming-server
+    environment:
+      server.port: 8070
+      
+  job-service:
+    image: job-microservice:0.0.1-SNAPSHOT
+    restart: on-failure
+    deploy:
+      replicas: 2
+    ports:
+      - "9010-9011:8081"
+    networks:
+      - inner-network
+    depends_on:
+      - naming-server
+      - cloud-config
+      - job-database
+    environment:
+      server.port: 8081
+      spring.config.import: 'configserver:http://cloud-config:8070/'
+      eureka.client.serviceUrl.defaultZone: http://naming-server:8071/eureka
+      spring.datasource.url: jdbc:mysql://job-database:3316/job_db
+      spring.datasource.driver-class-name: com.mysql.jdbc.Driver
+      spring.datasource.username: job_user
+      spring.datasource.password: password
+      spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+      spring.jpa.hibernate.ddl-auto: update
+      
+  dept-service:
+    image: dept-microservice:0.0.1-SNAPSHOT
+    restart: on-failure
+    deploy:
+      replicas: 2
+    ports:
+      - "9012-9013:8083"
+    networks:
+      - inner-network
+    depends_on:
+      - naming-server
+      - cloud-config
+      - dept-database
+    environment:
+      server.port: 8083
+      spring.config.import: 'configserver:http://cloud-config:8070/'
+      eureka.client.serviceUrl.defaultZone: http://naming-server:8071/eureka
+      spring.datasource.url: jdbc:mysql://dept-database:3317/dept_db
+      spring.datasource.driver-class-name: com.mysql.jdbc.Driver
+      spring.datasource.username: dept_user
+      spring.datasource.password: password
+      spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+      spring.jpa.hibernate.ddl-auto: update
+      
+  emp-service:
+    image: emp-microservice:0.0.1-SNAPSHOT
+    restart: on-failure
+    deploy:
+      replicas: 2
+    ports:
+      - "9014-9015:8082"
+    networks:
+      - inner-network
+    depends_on:
+      - naming-server
+      - cloud-config
+      - dept-service
+      - job-service
+      - emp-database
+    environment:
+      server.port: 8082
+      spring.config.import: 'configserver:http://cloud-config:8070/'
+      eureka.client.serviceUrl.defaultZone: http://naming-server:8071/eureka
+      spring.datasource.url: jdbc:mysql://emp-database:3318/emp_db
+      spring.datasource.driver-class-name: com.mysql.jdbc.Driver
+      spring.datasource.username: emp_user
+      spring.datasource.password: password
+      spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+      spring.jpa.hibernate.ddl-auto: update
+      
+  auth-database:
+    container_name: auth-database
+    image: mysql:5.7
+    networks:
+      - inner-network
+    ports:
+      - '3319:3319'
+    expose:
+      - '3319'      
+    environment:
+      MYSQL_DATABASE: 'auth_db'
+      MYSQL_USER: 'auth_user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_TCP_PORT: 3319
+
+  webapp:
+    restart: on-failure
+    image: webapp:0.0.1-SNAPSHOT
+    deploy:
+      replicas: 2
+    ports:
+      - "9016-9017:8090"
+    networks:
+      - inner-network
+    depends_on:
+      - auth-database
+      - dept-service
+      - job-service
+      - emp-service
+    environment:
+      server.port: 8090
+      eureka.client.serviceUrl.defaultZone: http://naming-server:8071/eureka
+      spring.datasource.url: jdbc:mysql://auth-database:3319/auth_db
+      spring.datasource.driver-class-name: com.mysql.jdbc.Driver
+      spring.datasource.username: auth_user
+      spring.datasource.password: password
+      spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+      spring.jpa.hibernate.ddl-auto: update
+      
+  load-balancer:
+    container_name: load-balancer
+    image: load-balancer:0.0.1-SNAPSHOT
+    ports:
+      - "80:80"
+    networks:
+      - inner-network
+    depends_on:
+      - webapp
