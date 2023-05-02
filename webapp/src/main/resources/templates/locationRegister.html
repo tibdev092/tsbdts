@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register New Location</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css"/>
+    <script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<body>
+<form th:object="${location}" th:action="@{/location/create}" method="post" enctype="multipart/form-data">
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading" style="background-color:lightgray;">
+                <h1 class="panel-title">Location Data</h1>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('streetAddress')}" th:errors="*{streetAddress}"></label>
+                        <label>Street Address:</label>
+                        <input type="text" class="form-control" th:field="*{streetAddress}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('postalCode')}" th:errors="*{postalCode}"></label>
+                        <label>Postal Code:</label>
+                        <input type="text" class="form-control" th:field="*{postalCode}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></label>
+                        <label>City:</label>
+                        <input type="text" class="form-control" th:field="*{city}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('country')}" th:errors="*{country}"></label>
+                        <label>Country:</label>
+                        <select id="country" name="country" th:field="*{country}">
+                            <option
+                                    th:each="country: ${countries}"
+                                    th:value="${country.name}" th:text="${country.name}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></label>
+                        <label>Country:</label>
+                        <select id="department" name="department" th:field="*{department}">
+                            <option
+                                    th:each="department: ${departments}"
+                                    th:value="${department.departmentName}" th:text="${department.departmentName}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-7 ml-md-auto">
+                    <button type="submit" class="btn btn-primary">Register Location</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>

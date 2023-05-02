@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register New Department</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css"/>
+    <script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<body>
+<form th:object="${department}" th:action="@{/department/create}" method="post" enctype="multipart/form-data">
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading" style="background-color:lightgray;">
+                <h1 class="panel-title">Department Data</h1>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('departmentName')}" th:errors="*{departmentName}"></label>
+                        <label>Department Name:</label>
+                        <input type="text" class="form-control" th:field="*{departmentName}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label>Location:</label>
+                        <select id="location" name="location" th:field="*{location}">
+                            <option
+                                    th:each="loc: ${locations}"
+                                    th:value="${loc.country.countryName}" th:text="${loc.country.countryName}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-7 ml-md-auto">
+                    <button type="submit" class="btn btn-primary">Register Department</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>

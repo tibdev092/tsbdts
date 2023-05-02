@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register New Country</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css"/>
+    <script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<body>
+<form th:object="${country}" th:action="@{/country/create}" method="post" enctype="multipart/form-data">
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading" style="background-color:lightgray;">
+                <h1 class="panel-title">Country Data</h1>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></label>
+                        <label>Country Name:</label>
+                        <input type="text" class="form-control" th:field="*{name}"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label th:if="${#fields.hasErrors('region')}" th:errors="*{region}"></label>
+                        <label>Region:</label>
+                        <select id="region" name="region" th:field="*{region}">
+                            <option
+                                    th:each="region: ${regions}"
+                                    th:value="${region.name}" th:text="${region.name}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-7 ml-md-auto">
+                    <button type="submit" class="btn btn-primary">Register Country</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>
