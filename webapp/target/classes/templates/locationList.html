@@ -1,0 +1,48 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Locations List</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.5.0/css/bootstrap.min.css"/>
+<body>
+<script src="/webjars/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+Logged user: <span sec:authentication="name">user</span> Roles: <span sec:authentication="principal.authorities">[ROLE_USER]</span>
+<div class="container">
+    <table class="table table-hover">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Street Address</th>
+            <th>Postal Code</th>
+            <th>City</th>
+            <th>Country Name</th>
+            <th>Region Name</th>
+        </tr>
+        </thead>
+        <tr th:each="location, stat : ${locations}"
+            th:class="${stat.odd}? 'table-light':'table-dark'"
+        >
+            <td th:text="${location.streetAddress}"></td>
+            <td th:text="${location.postalCode}"></td>
+            <td th:text="${location.city}"></td>
+            <td th:text="${location.name}"></td>
+            <td th:text="${location.region.name}"></td>
+        </tr>
+    </table>
+
+</div>
+<div class="container" sec:authorize="hasRole('ADMIN')">
+    <div class="row">
+        <div class="col-md-6">
+            <a class="btn btn-primary" role="button" th:href="@{'/location/register'}">Register Location</a>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <form th:action="@{/logout}" method="POST">
+        <input type="submit" class="btn btn-primary" value="Logout">
+    </form>
+</div>
+</body>
+</html>
